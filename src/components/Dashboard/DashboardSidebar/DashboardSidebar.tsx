@@ -87,7 +87,7 @@ export function DashboardSidebar({
     <div>
       <Sidebar className="border-r-0 w-[108px]" collapsible="none" {...props}>
         <SidebarContent className="p-4 bg-[#131313]">
-          <Link href={"/dashboard"} className="text-white">
+          <Link href={"/"} className="text-white">
             <Image
               src="/images/logo.png"
               alt="Logo"

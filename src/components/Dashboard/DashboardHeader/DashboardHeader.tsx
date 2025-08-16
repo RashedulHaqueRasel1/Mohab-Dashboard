@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function DashboardHeader() {
-  // ✅ Demo user data
+  // Demo user data
   const user = {
     name: "Sahed Rahman",
     email: "sahed.bdcalling@gmail.com",
