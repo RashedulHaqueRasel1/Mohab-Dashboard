@@ -24,6 +24,8 @@ import { MessageSquare, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { IStrategy, IStrategyResponse } from "@/types/next-auth";
 
+
+
 export default function Strategy() {
   const queryClient = useQueryClient();
 

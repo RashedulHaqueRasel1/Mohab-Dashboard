@@ -110,16 +110,15 @@ export async function getBlogs() {
 }
 
 // create Blog
-
 export async function createBlogs(
   data: { blogTitle: string; blogDescription: string },
   image?: File
 ) {
   try {
     const formData = new FormData();
-    formData.append("data", JSON.stringify(data)); // required by your backend
+    formData.append("data", JSON.stringify(data));
     if (image) {
-      formData.append("image", image); // required file
+      formData.append("image", image);
     }
 
     const response = await api.post("/blog/create", formData, {
@@ -162,6 +161,38 @@ export async function deleteBlog(id: string) {
 
 // get Solutions
 export async function getSolutions() {
-  const res = await api.get(`/solutions/get`);
+  const res = await api.get(`/solution/get`);
   return res.data;
+}
+
+// delete Solutions
+export async function deleteSolution(id: string) {
+  const res = await api.delete(`/solution/${id}`);
+  return res.data;
+}
+
+// update Solution
+export async function updateSolution(
+  id: string,
+  data: { solutionName: string; solutionDescription: string }
+) {
+  try {
+    const res = await api.put(`/solution/${id}`, data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+// solution create
+export async function createSolution(
+  data: { solutionName: string; solutionDescription: string }
+) {
+  try {
+    const res = await api.post(`/solution/create`, data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
 }
