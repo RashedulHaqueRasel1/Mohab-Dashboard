@@ -3,7 +3,8 @@ import { Inter } from "next/font/google";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar/DashboardSidebar";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader/DashboardHeader";
-import DashboardProvider from "@/Providers/DashboardProvider";
+import DashboardProvider from "@/providers/DashboardProvider";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function DashboardLayout({
               <main className="md:ml-[15px]">{children}</main>
             </div>
           </div>
+          <Toaster  position="top-center"/>
         </SidebarProvider>
       </DashboardProvider>
     </div>

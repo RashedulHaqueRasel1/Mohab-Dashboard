@@ -22,6 +22,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
+import { toast } from 'sonner'
 
 interface IService {
   _id: string;
@@ -56,14 +57,22 @@ export default function Services() {
 
   // mutation for update
   const { mutate: updateService, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<IService> }) =>
-      editService(id, data),
+    mutationFn: ({
+      id,
+      data,
+      file,
+    }: {
+      id: string;
+      data: Partial<IService>;
+      file?: File;
+    }) => editService(id, data, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success('Services Update successfully! ')
       setEditOpen(false);
     },
-    onError: (err) => {
-      alert(err.message || "Update failed!");
+    onError: () => {
+      toast.warning("Update Failed!")
     },
   });
 
@@ -72,10 +81,12 @@ export default function Services() {
     mutationFn: (id: string) => deleteService(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
+        toast.success('Services Delete successfully! ')
       setDeleteOpen(false);
     },
-    onError: (err) => {
-      alert(err.message || "Delete failed!");
+    onError: () => {
+        toast.warning("Delete Failed!")
+      // alert(err.message || "Delete failed!");
     },
   });
 
@@ -93,15 +104,19 @@ export default function Services() {
     if (!currentService) return;
 
     const form = e.currentTarget;
+
     const updatedData = {
       serviceTitle: (form.serviceTitle as HTMLInputElement).value,
       price: Number((form.price as HTMLInputElement).value),
       serviceDescription: (form.serviceDescription as HTMLTextAreaElement)
         .value,
-      imageLink: preview || currentService.imageLink,
     };
 
-    updateService({ id: currentService._id, data: updatedData });
+    // file include korbo jodi thake
+    const fileInput = document.getElementById("fileUpload") as HTMLInputElement;
+    const file = fileInput?.files?.[0];
+
+    updateService({ id: currentService._id, data: updatedData, file });
   };
 
   if (isLoading) return <p className="p-6">Loading services...</p>;

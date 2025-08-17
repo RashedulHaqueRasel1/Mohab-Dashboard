@@ -44,7 +44,10 @@ export async function fetchServices(page: number, limit: number) {
 }
 
 // create Services
-export async function createService(data: IService | Partial<IService>, image?: File) {
+export async function createService(
+  data: IService | Partial<IService>,
+  image?: File
+) {
   try {
     const formData = new FormData();
     formData.append("data", JSON.stringify(data));
@@ -63,8 +66,22 @@ export async function createService(data: IService | Partial<IService>, image?: 
 }
 
 // edit Services
-export async function editService(id: string, data: Partial<IService>) {
-  const res = await api.put(`/services/${id}`, data);
+export async function editService(
+  id: string,
+  data: Partial<IService>,
+  file?: File
+) {
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(data));
+
+  if (file) {
+    formData.append("file", file);  
+  }
+
+  const res = await api.put(`/services/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
   return res.data;
 }
 

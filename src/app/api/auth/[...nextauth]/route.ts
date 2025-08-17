@@ -37,7 +37,7 @@ const handler = NextAuth({
           const user = data.data?.user;
           const token = data.data?.accessToken;
 
-          console.log("API Login Response:", );
+          // console.log("API Login Response:", );
 
           return {
             id: user?._id || "unknown",
