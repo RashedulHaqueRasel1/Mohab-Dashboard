@@ -44,21 +44,18 @@ export default function DashboardPage() {
     queryFn: fetchAdminStats,
   });
 
-  console.log(adminStats);
 
   const { data: paymentStats, isLoading: loadingPayment } = useQuery({
     queryKey: ["payment-stats"],
     queryFn: fetchPaymentStats,
   });
 
-  console.log("paymentStats", paymentStats);
 
   const { data: categoryStats, isLoading: loadingCategory } = useQuery({
     queryKey: ["category-stats"],
     queryFn: fetchCategoryStats,
   });
 
-  console.log("categoryStats", categoryStats);
 
   // Prepare line chart data
   const lineChartData = paymentStats?.data || [];
