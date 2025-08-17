@@ -75,7 +75,7 @@ export async function editService(
   formData.append("data", JSON.stringify(data));
 
   if (file) {
-    formData.append("file", file);  
+    formData.append("file", file);
   }
 
   const res = await api.put(`/services/${id}`, formData, {
@@ -88,5 +88,80 @@ export async function editService(
 // delete Service
 export async function deleteService(id: string) {
   const res = await api.delete(`/services/${id}`);
+  return res.data;
+}
+
+// get strategy
+export async function getStrategy() {
+  const res = await api.get(`/strategy/get`);
+  return res.data;
+}
+
+// delete strategy
+export async function deleteStrategy(id: string) {
+  const res = await api.delete(`/strategy/${id}`);
+  return res.data;
+}
+
+// get blog
+export async function getBlogs() {
+  const res = await api.get(`/blog/get`);
+  return res.data;
+}
+
+// create Blog
+
+export async function createBlogs(
+  data: { blogTitle: string; blogDescription: string },
+  image?: File
+) {
+  try {
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data)); // required by your backend
+    if (image) {
+      formData.append("image", image); // required file
+    }
+
+    const response = await api.post("/blog/create", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// edit Blog
+export async function editBlog(
+  id: string,
+  data: Partial<IService>,
+  file?: File
+) {
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(data));
+
+  if (file) {
+    formData.append("file", file);
+  }
+
+  const res = await api.put(`/services/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return res.data;
+}
+
+// delete blog
+export async function deleteBlog(id: string) {
+  const res = await api.delete(`/blog/${id}`);
+  return res.data;
+}
+
+// get Solutions
+export async function getSolutions() {
+  const res = await api.get(`/solutions/get`);
   return res.data;
 }
