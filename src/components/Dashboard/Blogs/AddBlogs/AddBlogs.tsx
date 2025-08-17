@@ -25,6 +25,10 @@ interface Payload {
 function RichTextField() {
   const { setValue, watch } = useFormContext<BlogForm>();
   const content = watch("description");
+  if (!content) {
+    setValue("description", "");
+    
+  }
 
   return (
     <FormControl>

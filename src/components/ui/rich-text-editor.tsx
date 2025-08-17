@@ -1,8 +1,7 @@
+"use client";
 
-"use client"
-
-import type React from "react"
-import { useRef, useState, useEffect } from "react"
+import type React from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   Bold,
   Italic,
@@ -19,30 +18,34 @@ import {
   Code,
   Undo,
   Redo,
-} from "lucide-react"
+} from "lucide-react";
 
 interface RichTextEditorProps {
-  content: string
-  onChange: (content: string) => void
-  placeholder?: string
+  content: string;
+  onChange: (content: string) => void;
+  placeholder?: string;
 }
 
-export function RichTextEditor({ content, onChange, placeholder = "Start writing..." }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null)
-  const imageInputRef = useRef<HTMLInputElement>(null)
-  const [isFocused, setIsFocused] = useState(false)
-  const [activeStyles, setActiveStyles] = useState<Record<string, boolean>>({})
+export function RichTextEditor({
+  content,
+  onChange,
+  placeholder = "Start writing...",
+}: RichTextEditorProps) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [activeStyles, setActiveStyles] = useState<Record<string, boolean>>({});
 
   // Initialize editor content
   useEffect(() => {
     if (editorRef.current && !editorRef.current.innerHTML) {
-      editorRef.current.innerHTML = content || ""
+      editorRef.current.innerHTML = content || "";
     }
-  }, [content])
+  }, [content]);
 
   // Update active styles when selection changes
   const updateActiveStyles = () => {
-    if (!document) return
+    if (!document) return;
 
     setActiveStyles({
       bold: document.queryCommandState("bold"),
@@ -54,138 +57,147 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
       justifyFull: document.queryCommandState("justifyFull"),
       insertUnorderedList: document.queryCommandState("insertUnorderedList"),
       insertOrderedList: document.queryCommandState("insertOrderedList"),
-    })
-  }
+    });
+  };
 
   // Handle content changes
   const handleContentChange = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML)
-      updateActiveStyles()
+      onChange(editorRef.current.innerHTML);
+      updateActiveStyles();
     }
-  }
+  };
 
   // Execute command on the document
   const execCommand = (command: string, value = "") => {
     // Ensure the editor has focus before executing commands
     if (editorRef.current && document.activeElement !== editorRef.current) {
-      editorRef.current.focus()
+      editorRef.current.focus();
     }
 
     // Execute the command
-    document.execCommand(command, false, value)
+    document.execCommand(command, false, value);
 
     // Update content and active styles
-    handleContentChange()
+    handleContentChange();
 
     // Keep focus on the editor
     if (editorRef.current) {
-      editorRef.current.focus()
+      editorRef.current.focus();
     }
-  }
+  };
 
   // Handle image upload
   const handleImageUpload = () => {
     if (imageInputRef.current) {
-      imageInputRef.current.click()
+      imageInputRef.current.click();
     }
-  }
+  };
 
   // Process selected image
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      const reader = new FileReader()
+      const file = e.target.files[0];
+      const reader = new FileReader();
 
       reader.onload = (readerEvent) => {
-        const imageUrl = readerEvent.target?.result as string
-        execCommand("insertImage", imageUrl)
+        const imageUrl = readerEvent.target?.result as string;
+        execCommand("insertImage", imageUrl);
 
         // Reset the input
         if (imageInputRef.current) {
-          imageInputRef.current.value = ""
+          imageInputRef.current.value = "";
         }
-      }
+      };
 
-      reader.readAsDataURL(file)
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   // Handle heading formatting
   const formatHeading = (level: string) => {
     if (level === "p") {
-      execCommand("formatBlock", "<p>")
+      execCommand("formatBlock", "<p>");
     } else {
-      execCommand("formatBlock", `<${level}>`)
+      execCommand("formatBlock", `<${level}>`);
     }
-  }
+  };
 
   // Get current heading level
   const getCurrentHeadingLevel = (): string => {
-    const selection = window.getSelection()
-    if (!selection || selection.rangeCount === 0) return "p"
+    if (typeof window !== "undefined") {
+ 
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return "p";
 
-    const parentElement = selection.getRangeAt(0).commonAncestorContainer as HTMLElement
-    const element = parentElement.nodeType === 3 ? parentElement.parentElement : parentElement
+    const parentElement = selection.getRangeAt(0)
+      .commonAncestorContainer as HTMLElement;
+    const element =
+      parentElement.nodeType === 3
+        ? parentElement.parentElement
+        : parentElement;
 
-    if (!element) return "p"
+    if (!element) return "p";
 
-    const tagName = element.tagName.toLowerCase()
+    const tagName = element.tagName.toLowerCase();
     if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(tagName)) {
-      return tagName
+      return tagName;
     }
 
     // Check parent elements for heading tags
-    let parent = element.parentElement
+    let parent = element.parentElement;
     while (parent && parent !== editorRef.current) {
-      const parentTag = parent.tagName.toLowerCase()
+      const parentTag = parent.tagName.toLowerCase();
       if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(parentTag)) {
-        return parentTag
+        return parentTag;
       }
-      parent = parent.parentElement
+      parent = parent.parentElement;
     }
-
-    return "p"
-  }
+    }
+    return "p";
+  };
 
   // Insert link
   const insertLink = () => {
-    const url = prompt("Enter URL:", "https://")
+    const url = prompt("Enter URL:", "https://");
     if (url) {
-      execCommand("createLink", url)
+      execCommand("createLink", url);
     }
-  }
+  };
 
   // Remove link
   const removeLink = () => {
-    execCommand("unlink")
-  }
+    execCommand("unlink");
+  };
 
   // Handle paste to strip formatting
   const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault()
-    const text = e.clipboardData.getData("text/plain")
-    document.execCommand("insertText", false, text)
-  }
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    document.execCommand("insertText", false, text);
+  };
 
   // Handle keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Update active styles
-    updateActiveStyles()
+    updateActiveStyles();
 
     // Handle keyboard shortcuts
     if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault()
+      e.preventDefault();
       if (e.shiftKey) {
-        execCommand("redo")
+        execCommand("redo");
       } else {
-        execCommand("undo")
+        execCommand("undo");
       }
-    } else if ((e.key === "y" && (e.ctrlKey || e.metaKey)) || (e.key === "Z" && e.ctrlKey && e.shiftKey)) {
-      e.preventDefault()
-      execCommand("redo")
+    } else if (
+      (e.key === "y" && (e.ctrlKey || e.metaKey)) ||
+      (e.key === "Z" && e.ctrlKey && e.shiftKey)
+    ) {
+      e.preventDefault();
+      execCommand("redo");
     }
-  }
+  };
 
   return (
     <div className="border border-[#B6B6B6] focus:border-none focus:ring-0 focus-visible:border-none rounded-md overflow-scroll h-[341px]">
@@ -209,7 +221,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         <div className="rich-text-toolbar-group flex gap-1">
           <button
             onClick={() => execCommand("bold")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.bold ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.bold ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Bold"
             type="button"
           >
@@ -217,7 +231,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
           </button>
           <button
             onClick={() => execCommand("italic")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.italic ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.italic ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Italic"
             type="button"
           >
@@ -225,7 +241,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
           </button>
           <button
             onClick={() => execCommand("underline")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.underline ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.underline ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Underline"
             type="button"
           >
@@ -236,7 +254,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         <div className="rich-text-toolbar-group flex gap-1">
           <button
             onClick={() => execCommand("justifyLeft")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.justifyLeft ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.justifyLeft ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Align left"
             type="button"
           >
@@ -244,7 +264,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
           </button>
           <button
             onClick={() => execCommand("justifyCenter")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.justifyCenter ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.justifyCenter ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Align center"
             type="button"
           >
@@ -252,7 +274,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
           </button>
           <button
             onClick={() => execCommand("justifyRight")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.justifyRight ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.justifyRight ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Align right"
             type="button"
           >
@@ -260,7 +284,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
           </button>
           <button
             onClick={() => execCommand("justifyFull")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.justifyFull ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.justifyFull ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Justify"
             type="button"
           >
@@ -271,7 +297,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         <div className="rich-text-toolbar-group flex gap-1">
           <button
             onClick={() => execCommand("insertUnorderedList")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.insertUnorderedList ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.insertUnorderedList ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Bullet list"
             type="button"
           >
@@ -279,7 +307,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
           </button>
           <button
             onClick={() => execCommand("insertOrderedList")}
-            className={`rich-text-toolbar-button p-2 rounded ${activeStyles.insertOrderedList ? "bg-gray-300" : "bg-white"} hover:bg-gray-200`}
+            className={`rich-text-toolbar-button p-2 rounded ${
+              activeStyles.insertOrderedList ? "bg-gray-300" : "bg-white"
+            } hover:bg-gray-200`}
             title="Ordered list"
             type="button"
           >
@@ -288,10 +318,20 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         </div>
 
         <div className="rich-text-toolbar-group flex gap-1">
-          <button onClick={insertLink} className="rich-text-toolbar-button p-2 rounded bg-white hover:bg-gray-200" title="Insert link" type="button">
+          <button
+            onClick={insertLink}
+            className="rich-text-toolbar-button p-2 rounded bg-white hover:bg-gray-200"
+            title="Insert link"
+            type="button"
+          >
             <LinkIcon className="h-4 w-4" />
           </button>
-          <button onClick={removeLink} className="rich-text-toolbar-button p-2 rounded bg-white hover:bg-gray-200" title="Remove link" type="button">
+          <button
+            onClick={removeLink}
+            className="rich-text-toolbar-button p-2 rounded bg-white hover:bg-gray-200"
+            title="Remove link"
+            type="button"
+          >
             <Unlink className="h-4 w-4" />
           </button>
         </div>
@@ -308,10 +348,21 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         </div>
 
         <div className="rich-text-toolbar-group flex gap-1">
-          <button onClick={handleImageUpload} className="rich-text-toolbar-button p-2 rounded bg-white hover:bg-gray-200" title="Add image" type="button">
+          <button
+            onClick={handleImageUpload}
+            className="rich-text-toolbar-button p-2 rounded bg-white hover:bg-gray-200"
+            title="Add image"
+            type="button"
+          >
             <ImageIcon className="h-4 w-4" />
           </button>
-          <input type="file" ref={imageInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
+          <input
+            type="file"
+            ref={imageInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
         </div>
 
         <div className="rich-text-toolbar-group flex gap-1">
@@ -339,7 +390,11 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         contentEditable
         className={`rich-text-content p-4 min-h-[200px] outline-none text-base
           [&_h1]:text-[32px] [&_h2]:text-[24px] [&_h3]:text-[21px] [&_h4]:text-[16px] [&_h5]:text-[13px] [&_h6]:text-[11px] [&_p]:text-base
-          ${!content && !isFocused ? "empty before:content-[attr(data-placeholder)] before:text-gray-400" : ""}`}
+          ${
+            !content && !isFocused
+              ? "empty before:content-[attr(data-placeholder)] before:text-gray-400"
+              : ""
+          }`}
         onInput={handleContentChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
@@ -350,6 +405,5 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
         data-placeholder={placeholder}
       />
     </div>
-  )
+  );
 }
-

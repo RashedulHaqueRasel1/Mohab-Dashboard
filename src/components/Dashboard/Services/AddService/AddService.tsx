@@ -12,11 +12,23 @@ import { Upload, Save } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
+interface FormData {
+  serviceTitle: string;
+  serviceDescription: string;
+  price: string;
+}
+
+interface ServiceFormData {
+  serviceTitle: string;
+  serviceDescription: string;
+  price: number;
+}
+
 export default function AddService() {
   const router = useRouter();
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     serviceTitle: "",
     serviceDescription: "",
     price: "",
@@ -26,14 +38,12 @@ export default function AddService() {
 
   // React Query Mutation
   const mutation = useMutation({
-    mutationFn: ({ data, image }: { data: any; image?: File }) =>
+    mutationFn: ({ data, image }: { data: ServiceFormData; image?: File }) =>
       createService(data, image),
     onSuccess: () => {
-    //   toast.success("✅ Service created successfully!");
       router.push("/dashboard/services");
     },
-    onError: (err) => {
-    //   console.error(err);
+    onError: (err: Error) => {
       toast.error(err.message || "❌ Failed to add service!");
     },
   });
@@ -60,7 +70,6 @@ export default function AddService() {
     e.preventDefault();
 
     if (!formData.serviceTitle || !formData.price || !formData.serviceDescription) {
-    //   toast.error("⚠️ Please fill in all fields");
       return;
     }
 
