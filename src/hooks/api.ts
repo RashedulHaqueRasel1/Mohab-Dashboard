@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getSession } from "next-auth/react";
-import { IBlog, IService } from "@/types/service";
+import { IBlog, IService, UserProfile } from "@/types/service";
+import { NextApiResponse } from "next";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -37,7 +38,7 @@ export async function fetchCategoryStats() {
   return res.data;
 }
 
-// Services
+// Get Services
 export async function fetchServices(page: number, limit: number) {
   const res = await api.get(`/services/get?page=${page}&limit=${limit}`);
   return res.data;
@@ -208,5 +209,49 @@ export async function createSolution(data: {
 // get payments
 export async function getPayments() {
   const res = await api.get(`/payment`);
+  return res.data;
+}
+
+
+// Password change
+export async function changePassword(data: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) {
+  try {
+    const res = await api.post(`/auth/change-password`, data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+
+// Get user profile
+export async function getUserProfile() {
+  const res = await api.get(`/user/profile`);
+  return res.data;
+}
+
+// Update user profile
+export async function updateUserProfile(
+  profileData: Partial<UserProfile>
+): Promise<NextApiResponse<UserProfile>> {
+  try {
+    const res = await api.put(`/user/update-profile`, profileData);
+    return res.data;
+  } catch  {
+    throw new Error(
+        "Failed to update profile"
+    );
+  }
+}
+
+
+// GET getAll Needed Staff
+export async function getAllNeededStaff() {
+  const res = await api.get(`/needed-staff/get`);
   return res.data;
 }

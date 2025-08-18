@@ -18,3 +18,20 @@ export interface IBlog {
   createdAt: string;
   updatedAt?: string;
 }
+
+
+// Types
+export type UserProfile = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  cityOrState: string;
+  companyName: string;
+  roadOrArea: string;
+  postalCode: string;
+  imageLink: string;
+};
+
+ 

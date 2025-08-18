@@ -11,23 +11,51 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getUserProfile } from "@/hooks/api";
+import { useQuery } from "@tanstack/react-query";
+
+type ApiResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    companyName: string;
+    phone: string;
+    imageLink: string;
+    role: string;
+    country: string;
+    cityOrState: string;
+    roadOrArea: string;
+    postalCode: string;
+    isVerified: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+};
 
 export default function DashboardHeader() {
-  // Demo user data
-  const user = {
-    name: "Sahed Rahman",
-    email: "sahed.bdcalling@gmail.com",
-    role: "Admin",
-    company: "Elit Stack",
-    phone: "12313123214324",
-    image: "https://i.pravatar.cc/150?img=5",
-  };
+  const { data: response, isLoading, isError } = useQuery<ApiResponse>({
+    queryKey: ["userProfile"],
+    queryFn: getUserProfile,
+  });
 
   const section = "Dashboard";
 
   const handleLogout = () => {
     alert("Logout clicked!");
   };
+
+  if (isLoading) {
+    return <div className="text-white">Loading...</div>;
+  }
+  if (isError || !response?.data) {
+    return <div className="text-red-500">Failed to load user data</div>;
+  }
+
+  const user = response.data;
 
   return (
     <header className="w-full flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-[#131313] shadow-sm">
@@ -40,13 +68,13 @@ export default function DashboardHeader() {
           <div className="flex cursor-pointer items-center gap-2">
             {/* Avatar */}
             <Avatar className="w-9 h-9 border">
-              <AvatarImage src={user.image || ""} alt={user.name} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={user.imageLink || ""} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarFallback>{user.firstName.charAt(0)}{user.lastName.charAt(0)}</AvatarFallback>
             </Avatar>
 
             {/* Name + role (hidden on small screens) */}
             <span className="hidden sm:inline text-sm font-medium text-white">
-              {user.name}{" "}
+              {user.firstName}{" "}
               <span className="text-red-400 text-xs">({user.role})</span>
             </span>
 
@@ -60,11 +88,11 @@ export default function DashboardHeader() {
           {/* User Info */}
           <div className="flex items-center gap-3 p-3 border-b">
             <Avatar className="w-10 h-10 border">
-              <AvatarImage src={user.image || ""} alt={user.name} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={user.imageLink || ""} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarFallback>{user.firstName.charAt(0)}{user.lastName.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="truncate">
-              <p className="font-medium text-sm">{user.name}</p>
+              <p className="font-medium text-sm">{user.firstName} {user.lastName}</p>
               <p className="text-xs text-gray-500">{user.email}</p>
             </div>
           </div>
@@ -74,9 +102,9 @@ export default function DashboardHeader() {
             <p>
               <span className="font-semibold">Role:</span> {user.role}
             </p>
-            {user.company && (
+            {user.companyName && (
               <p>
-                <span className="font-semibold">Company:</span> {user.company}
+                <span className="font-semibold">Company:</span> {user.companyName}
               </p>
             )}
             {user.phone && (

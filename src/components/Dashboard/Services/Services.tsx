@@ -120,7 +120,6 @@ export default function Services() {
       data: Object.fromEntries(formData.entries()),  
        image: file,
     });
-
   };
 
 
