@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getSession } from "next-auth/react";
-import { IService } from "@/types/service";
+import { IBlog, IService } from "@/types/service";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -69,20 +69,26 @@ export async function createService(
 export async function editService(
   id: string,
   data: Partial<IService>,
-  file?: File
+  image?: File
 ) {
-  const formData = new FormData();
-  formData.append("data", JSON.stringify(data));
+  try {
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
 
-  if (file) {
-    formData.append("file", file);
+    if (image) {
+      formData.append("image", image);
+    }
+
+    const response = await api.put(`/services/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch {
+    throw new Error("Failed to update service");
   }
-
-  const res = await api.put(`/services/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-
-  return res.data;
 }
 
 // delete Service
@@ -134,23 +140,25 @@ export async function createBlogs(
 }
 
 // edit Blog
-export async function editBlog(
-  id: string,
-  data: Partial<IService>,
-  file?: File
-) {
-  const formData = new FormData();
-  formData.append("data", JSON.stringify(data));
+export async function editBlog(id: string, data: Partial<IBlog>, image?: File) {
+  try {
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
 
-  if (file) {
-    formData.append("file", file);
+    if (image) {
+      formData.append("image", image);
+    }
+
+    const response = await api.put(`/blog/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch {
+    throw new Error("Failed to update blog");
   }
-
-  const res = await api.put(`/services/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-
-  return res.data;
 }
 
 // delete blog
@@ -184,11 +192,11 @@ export async function updateSolution(
   }
 }
 
-
 // solution create
-export async function createSolution(
-  data: { solutionName: string; solutionDescription: string }
-) {
+export async function createSolution(data: {
+  solutionName: string;
+  solutionDescription: string;
+}) {
   try {
     const res = await api.post(`/solution/create`, data);
     return res.data;
@@ -201,4 +209,4 @@ export async function createSolution(
 export async function getPayments() {
   const res = await api.get(`/payment`);
   return res.data;
-} 
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getBlogs, deleteBlog } from "@/hooks/api";
+import { getBlogs, deleteBlog, editBlog } from "@/hooks/api";
 import {
   Table,
   TableBody,
@@ -23,6 +23,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useState } from "react";
+import { IBlog } from "@/types/service";
 
 interface Blog {
   _id: string;
@@ -34,7 +35,11 @@ interface Blog {
 
 export default function Blogs() {
   const queryClient = useQueryClient();
-  const { data: blogs, isLoading, isError } = useQuery({
+  const {
+    data: blogs,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["blogs"],
     queryFn: getBlogs,
   });
@@ -58,6 +63,24 @@ export default function Blogs() {
     onError: () => toast.error("Delete failed!"),
   });
 
+  const { mutate: updateBlog, isPending: isUpdating } = useMutation({
+    mutationFn: ({
+      id,
+      data,
+      image,
+    }: {
+      id: string;
+      data: Partial<IBlog>;
+      image?: File;
+    }) => editBlog(id, data, image),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      toast.success("Blog updated successfully!");
+      setEditOpen(false);
+    },
+    onError: () => toast.error("Update failed!"),
+  });
+
   // file change handler
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,7 +89,7 @@ export default function Blogs() {
     }
   };
 
-  // update handler (dummy for now)
+  // update handler
   const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentBlog) return;
@@ -78,14 +101,10 @@ export default function Blogs() {
       blogDescription: (form.blogDescription as HTMLTextAreaElement).value,
     };
 
-    // file include করব যদি থাকে
     const fileInput = document.getElementById("fileUpload") as HTMLInputElement;
     const file = fileInput?.files?.[0];
 
-    console.log("Update payload:", { id: currentBlog._id, data: updatedData, file });
-
-    toast.success("Blog updated successfully! (demo only)");
-    setEditOpen(false);
+    updateBlog({ id: currentBlog._id, data: updatedData, image: file });
   };
 
   if (isLoading) return <p className="p-6">Loading blogs...</p>;
@@ -284,10 +303,11 @@ export default function Blogs() {
                               Cancel
                             </Button>
                             <Button
-                              className="bg-blue-600 hover:bg-blue-700"
+                              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
                               type="submit"
+                              disabled={isUpdating}
                             >
-                              Update Blog
+                              {isUpdating ? "Updating..." : "Update Blog"}
                             </Button>
                           </div>
                         </form>

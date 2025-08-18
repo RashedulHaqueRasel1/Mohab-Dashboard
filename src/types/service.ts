@@ -9,3 +9,12 @@ export interface IService {
   __v: number;
 }
 
+
+export interface IBlog {
+  _id: string;
+  blogTitle: string;
+  blogDescription: string;
+  imageLink: string;
+  createdAt: string;
+  updatedAt?: string;
+}

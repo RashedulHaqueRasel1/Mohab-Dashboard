@@ -22,7 +22,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
-import { toast } from 'sonner'
+import { toast } from "sonner";
 
 interface IService {
   _id: string;
@@ -60,32 +60,33 @@ export default function Services() {
     mutationFn: ({
       id,
       data,
-      file,
+      image,
     }: {
       id: string;
       data: Partial<IService>;
-      file?: File;
-    }) => editService(id, data, file),
+      image?: File;
+    }) => editService(id, data, image),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
-      toast.success('Services Update successfully! ')
+      toast.success("Services Update successfully! ");
       setEditOpen(false);
     },
     onError: () => {
-      toast.warning("Update Failed!")
+      toast.warning("Update Failed!");
     },
   });
+
 
   // mutation for delete
   const { mutate: removeService, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => deleteService(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
-        toast.success('Services Delete successfully! ')
+      toast.success("Services Delete successfully! ");
       setDeleteOpen(false);
     },
     onError: () => {
-        toast.warning("Delete Failed!")
+      toast.warning("Delete Failed!");
       // alert(err.message || "Delete failed!");
     },
   });
@@ -104,20 +105,24 @@ export default function Services() {
     if (!currentService) return;
 
     const form = e.currentTarget;
+    const formData = new FormData(form);
 
-    const updatedData = {
-      serviceTitle: (form.serviceTitle as HTMLInputElement).value,
-      price: Number((form.price as HTMLInputElement).value),
-      serviceDescription: (form.serviceDescription as HTMLTextAreaElement)
-        .value,
-    };
-
-    // file include korbo jodi thake
+    // File input handle
     const fileInput = document.getElementById("fileUpload") as HTMLInputElement;
     const file = fileInput?.files?.[0];
+    if (file) {
+      formData.set("image", file); 
+    }
 
-    updateService({ id: currentService._id, data: updatedData, file });
+    // API Call
+    updateService({
+      id: currentService._id,
+      data: Object.fromEntries(formData.entries()),  
+       image: file,
+    });
+
   };
+
 
   if (isLoading) return <p className="p-6">Loading services...</p>;
   if (isError)
