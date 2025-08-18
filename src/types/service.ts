@@ -8,3 +8,4 @@ export interface IService {
   updatedAt: string;
   __v: number;
 }
+

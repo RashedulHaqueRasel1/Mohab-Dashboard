@@ -196,3 +196,9 @@ export async function createSolution(
     throw error;
   }
 }
+
+// get payments
+export async function getPayments() {
+  const res = await api.get(`/payment`);
+  return res.data;
+} 
