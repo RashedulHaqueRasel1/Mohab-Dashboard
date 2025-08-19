@@ -5,7 +5,10 @@ import React, { Suspense } from "react";
 export default function AddBlogPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
+    {/* <div> */}
       <AddBlogs />
+    {/* </div> */}
+
     </Suspense>
   );
 }
