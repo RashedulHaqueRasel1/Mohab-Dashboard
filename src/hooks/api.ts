@@ -212,7 +212,6 @@ export async function getPayments() {
   return res.data;
 }
 
-
 // Password change
 export async function changePassword(data: {
   currentPassword: string;
@@ -227,8 +226,6 @@ export async function changePassword(data: {
   }
 }
 
-
-
 // Get user profile
 export async function getUserProfile() {
   const res = await api.get(`/user/profile`);
@@ -242,16 +239,79 @@ export async function updateUserProfile(
   try {
     const res = await api.put(`/user/update-profile`, profileData);
     return res.data;
-  } catch  {
-    throw new Error(
-        "Failed to update profile"
-    );
+  } catch {
+    throw new Error("Failed to update profile");
   }
 }
-
 
 // GET getAll Needed Staff
 export async function getAllNeededStaff() {
   const res = await api.get(`/needed-staff/get`);
+  return res.data;
+}
+
+
+// Get all Users
+export async function getAllUsers() {  
+  try {
+    const res = await api.get(`/user`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Get all datasets with pagination
+export async function getAllDataSet() {
+  try {
+    const res = await api.get(`/data-set/all`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+// Add DataSet by ID
+export async function addDataSet(data: {
+  dataSetName: string;
+  userId: string;
+  dataSets: File;
+}) {
+  try {
+    const formData = new FormData();
+    formData.append("dataSetName", data.dataSetName); // match keys
+    formData.append("file", data.dataSets);           // match keys your backend expects
+
+    const res = await api.post(`/data-set/create/${data.userId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    console.log("Add DataSet Response:", res.data);
+    return res.data;
+  } catch (error) {
+    console.error("Add DataSet Error:", error);
+    throw error;
+  }
+}
+
+// Update DataSet by ID
+export async function updateDataSet(id: string, data: FormData) {
+  try {
+    
+    const res = await api.put(`/data-set/update/${id}`, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    console.log("Update DataSet Response:", res);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// delete Data Set
+export async function deleteDataSet(id: string) {
+  const res = await api.delete(`/data-set/delete/${id}`);
   return res.data;
 }

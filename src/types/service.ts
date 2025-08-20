@@ -9,7 +9,6 @@ export interface IService {
   __v: number;
 }
 
-
 export interface IBlog {
   _id: string;
   blogTitle: string;
@@ -18,7 +17,6 @@ export interface IBlog {
   createdAt: string;
   updatedAt?: string;
 }
-
 
 // Types
 export type UserProfile = {
@@ -34,4 +32,8 @@ export type UserProfile = {
   imageLink: string;
 };
 
- 
+export type DataType = {
+  dataSetName: string;
+  userId: string;
+  dataSets: File;
+};
